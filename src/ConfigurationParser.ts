@@ -44,18 +44,17 @@ export abstract class ConfigurationParser<TConfiguring> {
 
             let text = configurationText.substring(startPos, endPos);
 
-            const numTrimStart = text.TakeWhile(c => char.IsWhiteSpace(c)).Count();
-            text = text.substr(numTrimStart);
+            let origLength = text.length;
+            text = text.trimStart();
 
             if (text.length == 0)
             {
                 continue;
             }
 
-            startPos += numTrimStart;
+            startPos += text.length - origLength;
 
-            const numTrimEnd = text.Reverse().TakeWhile(c => char.IsWhiteSpace(c)).Count();
-            text = text.substr(0, text.length - numTrimEnd);
+            text = text.trimEnd();
 
             sentences.push({
                 text,
