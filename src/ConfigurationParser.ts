@@ -2,8 +2,9 @@ import { createError, IParserError } from './IParserError';
 import { ISentenceData } from './ISentenceData';
 import { SentenceParser } from './SentenceParser';
 
-export abstract class ConfigurationParser<TConfiguring> {
-  private sentenceParsers = this.createSentenceParsers();
+export class ConfigurationParser<TConfiguring> {
+  constructor(private readonly sentenceParsers: Array<SentenceParser<TConfiguring>>) {
+  }
 
   public parse(configuring: TConfiguring, configurationText: string): IParserError[] {
     const errors: IParserError[] = [];
@@ -29,8 +30,6 @@ export abstract class ConfigurationParser<TConfiguring> {
     return errors;
   }
 
-  protected abstract createSentenceParsers(): Array<SentenceParser<TConfiguring>>;
-  
   private splitSentences(configurationText: string): ISentenceData[] {
     let startPos = -1;
     let endPos = -1;
@@ -71,7 +70,7 @@ export abstract class ConfigurationParser<TConfiguring> {
   private parseSentence(configuring: TConfiguring, sentence: string): IParserError[] {
     for (const parser of this.sentenceParsers) {
       const errors = parser.parse(configuring, sentence);
-      if (errors.length !== 0) {
+      if (errors !== null) {
         return errors;
       }
     }
