@@ -1,17 +1,26 @@
 import { IParserError } from './IParserError';
 
-export class SentenceParser<TConfiguring> {
-  public readonly expression: RegExp;
+export interface ISentenceParser<TConfiguring> {
+    name: string;
+    expressionText: string;
+    parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[];
+    examples?: string[];
+    group?: string;
+}
 
-  // TODO: this is too many damn parameters
-  constructor(
-    public readonly name: string,
-    expressionText: string,
-    public readonly parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[],
-    public readonly examples?: string[],
-    public readonly group?: string
-  ) {
-    this.expression = new RegExp(`^${expressionText}$`, 'is');
+export class SentenceParser<TConfiguring> {
+  public readonly name: string;
+  public readonly group?: string;
+  public readonly examples?: string[];
+  public readonly expression: RegExp;
+  private readonly parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[];
+
+  constructor(data: ISentenceParser<TConfiguring>) {
+    this.name = data.name;
+    this.group = data.group;
+    this.examples = data.examples;
+    this.expression = new RegExp(`^${data.expressionText}$`, 'is');
+    this.parseMatch = data.parseMatch;
   }
 
   public parse(configuring: TConfiguring, sentence: string) {
