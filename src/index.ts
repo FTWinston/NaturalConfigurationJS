@@ -1,5 +1,5 @@
-import { ISentenceData } from './ISentenceData';
 import { IParserError } from './IParserError';
+import { ISentenceData } from './ISentenceData';
 
 export { ConfigurationParser } from './ConfigurationParser';
 export { SentenceParser } from './SentenceParser';

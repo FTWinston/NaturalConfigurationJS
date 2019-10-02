@@ -1,5 +1,5 @@
 export interface ISentenceData {
-    text: string
-    startIndex: number;
-    length: number;
+  text: string;
+  startIndex: number;
+  length: number;
 }
