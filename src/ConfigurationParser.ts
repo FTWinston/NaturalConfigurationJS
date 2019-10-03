@@ -1,9 +1,22 @@
 import { createError, IParserError } from './IParserError';
 import { ISentenceData } from './ISentenceData';
+import { IListParser, ISentenceParser } from './ISentenceParser';
+import { ListParser } from './ListParser';
 import { SentenceParser } from './SentenceParser';
 
 export class ConfigurationParser<TConfiguring> {
-  constructor(private readonly sentenceParsers: Array<SentenceParser<TConfiguring>>) {
+  private sentenceParsers: Array<SentenceParser<TConfiguring>>;
+
+  constructor(public readonly parsers: Array<ISentenceParser<TConfiguring> | IListParser<TConfiguring>>) {
+    this.sentenceParsers = parsers.map(parser => {
+      if (parser.type === 'standard') {
+        return new SentenceParser(parser);
+      } else if (parser.type === 'list') {
+        return new ListParser(parser);
+      } else {
+        throw new Error(`Unexpected parser type: ${(parser as any).type}`);
+      }
+    });
   }
 
   public parse(configuring: TConfiguring, configurationText: string): IParserError[] {

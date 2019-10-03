@@ -1,26 +1,35 @@
 import { ConfigurationParser } from '../src/ConfigurationParser';
-import { SentenceParser } from '../src/SentenceParser';
 
 interface IString {
   value: string;
 }
 
-const parser = new ConfigurationParser([
-  new SentenceParser<IString>('replace', 'Replace \"(.+)\" with \"(.*)\"', (modify, match) => {
-    const before = new RegExp(match[1], 'g');
-    const after = match[2];
-    modify.value = modify.value.replace(before, after);
-    return [];
-  }),
-  new SentenceParser<IString>('case', 'Convert to (upper|lower) case', (modify, match) => {
-    if (match[1] === 'upper') {
-      modify.value = modify.value.toUpperCase();
+const parser = new ConfigurationParser<IString>([
+  {
+    type: 'standard',
+    name: 'replace',
+    expressionText: 'Replace \"(.+)\" with \"(.*)\"',
+    parseMatch: (modify, match) => {
+      const before = new RegExp(match[1], 'g');
+      const after = match[2];
+      modify.value = modify.value.replace(before, after);
+      return [];
     }
-    else {
-      modify.value = modify.value.toLowerCase();
+  },
+  {
+    type: 'standard',
+    name: 'case',
+    expressionText: 'Convert to (upper|lower) case',
+    parseMatch: (modify, match) => {
+      if (match[1] === 'upper') {
+        modify.value = modify.value.toUpperCase();
+      }
+      else {
+        modify.value = modify.value.toLowerCase();
+      }
+      return [];
     }
-    return [];
-  })
+  }
 ]);
 
 test('Fully modifies hello world', () => {

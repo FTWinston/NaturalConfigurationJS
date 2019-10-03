@@ -1,12 +1,5 @@
 import { IParserError } from './IParserError';
-
-export interface ISentenceParser<TConfiguring> {
-    name: string;
-    expressionText: string;
-    parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[];
-    examples?: string[];
-    group?: string;
-}
+import { ISentenceParserBase } from './ISentenceParser';
 
 export class SentenceParser<TConfiguring> {
   public readonly name: string;
@@ -15,7 +8,7 @@ export class SentenceParser<TConfiguring> {
   public readonly expression: RegExp;
   private readonly parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[];
 
-  constructor(data: ISentenceParser<TConfiguring>) {
+  constructor(data: ISentenceParserBase<TConfiguring>) {
     this.name = data.name;
     this.group = data.group;
     this.examples = data.examples;
