@@ -5,6 +5,7 @@ import { ListParser } from './ListParser';
 import { SentenceParser } from './SentenceParser';
 
 export class ConfigurationParser<TConfiguring> {
+  public readonly examples: string[];
   private sentenceParsers: Array<SentenceParser<TConfiguring>>;
 
   constructor(public readonly parsers: Array<ISentenceParser<TConfiguring> | IListParser<TConfiguring>>) {
@@ -17,6 +18,11 @@ export class ConfigurationParser<TConfiguring> {
         throw new Error(`Unexpected parser type: ${(parser as any).type}`);
       }
     });
+
+    this.examples = [];
+    for (const parser of parsers) {
+      this.examples = [...this.examples, ...parser.examples];
+    }
   }
 
   public parse(configuring: TConfiguring, configurationText: string): IParserError[] {

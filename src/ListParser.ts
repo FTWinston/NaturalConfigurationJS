@@ -17,17 +17,14 @@ export class ListParser<TConfiguring> extends SentenceParser<TConfiguring> {
 
   private parseListMatch: (configuring: TConfiguring, match: RegExpExecArray, values: string[]) => IParserError[];
   private listGroupOffset = 0;
-  
+
   constructor(data: IListParserBase<TConfiguring>) {
     super({
-      examples: data.examples,
       expressionText: ListParser.createListExpression(
         data.expressionPrefix,
         data.expressionSuffix,
         data.elementExpression,
       ),
-      group: data.group,
-      name: data.name,
       parseMatch: (c, m) => this.doParseMatch(c, m),
     });
 

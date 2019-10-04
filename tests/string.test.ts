@@ -7,18 +7,20 @@ interface IString {
 const parser = new ConfigurationParser<IString>([
   {
     type: 'standard',
-    name: 'replace',
     expressionText: 'Replace \"(.+)\" with \"(.*)\"',
     parseMatch: (modify, match) => {
       const before = new RegExp(match[1], 'g');
       const after = match[2];
       modify.value = modify.value.replace(before, after);
       return [];
-    }
+    },
+    examples: [
+      'Replace "x" with "y"',
+      'Replace "something" with ""'
+    ]
   },
   {
     type: 'standard',
-    name: 'case',
     expressionText: 'Convert to (upper|lower) case',
     parseMatch: (modify, match) => {
       if (match[1] === 'upper') {
@@ -28,7 +30,11 @@ const parser = new ConfigurationParser<IString>([
         modify.value = modify.value.toLowerCase();
       }
       return [];
-    }
+    },
+    examples: [
+      'Convert to upper case',
+      'Conver to lower case'
+    ]
   }
 ]);
 
@@ -47,4 +53,15 @@ test('Partly modifies hello world', () => {
 
   expect(errors).toHaveLength(0);
   expect(input.value).toEqual('HELLO WORLD');
+});
+
+test('Examples match expectations', () => {
+  expect(parser.examples).toHaveLength(4);
+
+  expect(parser.examples).toEqual([
+    'Replace "x" with "y"',
+    'Replace "something" with ""',
+    'Convert to upper case',
+    'Conver to lower case'
+  ]);
 });
