@@ -7,10 +7,15 @@ interface IString {
 const parser = new ConfigurationParser<IString>([
   {
     type: 'standard',
-    expressionText: 'Replace \"(.+)\" with \"(.*)\"',
+    expressionText: 'Replace \"(.*)\" with \"(.*)\"',
     parseMatch: (modify, match) => {
+      if (match[1].length === 0) {
+        return ['Match text cannot be empty.'];
+      }
+
       const before = new RegExp(match[1], 'g');
       const after = match[2];
+
       modify.value = modify.value.replace(before, after);
       return [];
     },
@@ -21,14 +26,18 @@ const parser = new ConfigurationParser<IString>([
   },
   {
     type: 'standard',
-    expressionText: 'Convert to (upper|lower) case',
+    expressionText: 'Convert to (.+) case',
     parseMatch: (modify, match) => {
       if (match[1] === 'upper') {
         modify.value = modify.value.toUpperCase();
       }
-      else {
+      else if (match[1] === 'lower') {
         modify.value = modify.value.toLowerCase();
       }
+      else {
+        return [`Unexpected case value: ${match[1]}`];
+      }
+
       return [];
     },
     examples: [
