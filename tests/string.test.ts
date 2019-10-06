@@ -10,7 +10,11 @@ const parser = new ConfigurationParser<IString>([
     expressionText: 'Replace \"(.*)\" with \"(.*)\"',
     parseMatch: (modify, match) => {
       if (match[1].length === 0) {
-        return ['Match text cannot be empty.'];
+        return [{
+          startIndex: 8,
+          length: 2,
+          message: 'Match text cannot be empty.'
+        }];
       }
 
       const before = new RegExp(match[1], 'g');
@@ -35,7 +39,11 @@ const parser = new ConfigurationParser<IString>([
         modify.value = modify.value.toLowerCase();
       }
       else {
-        return [`Unexpected case value: ${match[1]}`];
+        return [{
+          startIndex: 11,
+          length: match[1].length,
+          message: `Unexpected case value: ${match[1]}`
+        }];
       }
 
       return [];
