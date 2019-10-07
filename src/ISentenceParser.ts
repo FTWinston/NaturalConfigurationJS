@@ -2,7 +2,11 @@ import { IParserError } from './IParserError';
 
 export interface ISentenceParserBase<TConfiguring> {
   expressionText: string;
-  parseMatch: (configuring: TConfiguring, match: RegExpExecArray) => IParserError[];
+  parseMatch: (
+    match: RegExpExecArray,
+    action: (action: (modify: TConfiguring) => void) => void,
+    error: (error: IParserError) => void,
+  ) => void;
 }
 
 export interface ISentenceParser<TConfiguring> extends ISentenceParserBase<TConfiguring> {
@@ -14,7 +18,12 @@ export interface IListParserBase<TConfiguring> {
   expressionPrefix: string;
   elementExpression?: string;
   expressionSuffix?: string;
-  parseListMatch: (configuring: TConfiguring, match: RegExpExecArray, values: string[]) => IParserError[];
+  parseListMatch: (
+    match: RegExpExecArray,
+    values: string[],
+    action: (action: (modify: TConfiguring) => void) => void,
+    error: (error: IParserError) => void,
+  ) => IParserError[];
   listGroupOffset?: number;
 }
 

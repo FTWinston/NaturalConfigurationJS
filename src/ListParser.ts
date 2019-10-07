@@ -15,7 +15,12 @@ export class ListParser<TConfiguring> extends SentenceParser<TConfiguring> {
     return `${prefix}(${element})(?:, (${element}))*(?: and (${element}))?${suffix}`;
   }
 
-  private parseListMatch: (configuring: TConfiguring, match: RegExpExecArray, values: string[]) => IParserError[];
+  private parseListMatch: (
+    match: RegExpExecArray,
+    values: string[],
+    action: (action: (modify: TConfiguring) => void) => void,
+    error: (error: IParserError) => void,
+  ) => void;
   private listGroupOffset = 0;
 
   constructor(data: IListParserBase<TConfiguring>) {
@@ -25,7 +30,7 @@ export class ListParser<TConfiguring> extends SentenceParser<TConfiguring> {
         data.expressionSuffix,
         data.elementExpression,
       ),
-      parseMatch: (c, m) => this.doParseMatch(c, m),
+      parseMatch: (match, action, error) => this.doParseMatch(match, action, error),
     });
 
     this.listGroupOffset = data.listGroupOffset === undefined ? 0 : data.listGroupOffset;
@@ -33,8 +38,12 @@ export class ListParser<TConfiguring> extends SentenceParser<TConfiguring> {
     this.parseListMatch = data.parseListMatch;
   }
 
-  public doParseMatch(configuring: TConfiguring, match: RegExpExecArray): IParserError[] {
+  public doParseMatch(
+    match: RegExpExecArray,
+    action: (action: (modify: TConfiguring) => void) => void,
+    error: (error: IParserError) => void,
+  ) {
     const values = match.slice(1 + this.listGroupOffset);
-    return this.parseListMatch(configuring, match, values);
+    this.parseListMatch(match, values, action, error);
   }
 }

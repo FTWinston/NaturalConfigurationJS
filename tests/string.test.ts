@@ -8,20 +8,21 @@ const parser = new ConfigurationParser<IString>([
   {
     type: 'standard',
     expressionText: 'Replace \"(.*)\" with \"(.*)\"',
-    parseMatch: (modify, match) => {
+    parseMatch: (match, action, error) => {
       if (match[1].length === 0) {
-        return [{
+        error({
           startIndex: 8,
           length: 2,
           message: 'Match text cannot be empty.'
-        }];
+        });
+
+        return;
       }
 
       const before = new RegExp(match[1], 'g');
       const after = match[2];
 
-      modify.value = modify.value.replace(before, after);
-      return [];
+      action(modify => modify.value = modify.value.replace(before, after));
     },
     examples: [
       'Replace "x" with "y"',
@@ -31,22 +32,20 @@ const parser = new ConfigurationParser<IString>([
   {
     type: 'standard',
     expressionText: 'Convert to (.+) case',
-    parseMatch: (modify, match) => {
+    parseMatch: (match, action, error) => {
       if (match[1] === 'upper') {
-        modify.value = modify.value.toUpperCase();
+        action(modify => modify.value = modify.value.toUpperCase());
       }
       else if (match[1] === 'lower') {
-        modify.value = modify.value.toLowerCase();
+        action(modify => modify.value = modify.value.toLowerCase());
       }
       else {
-        return [{
+        error({
           startIndex: 11,
           length: match[1].length,
           message: `Unexpected case value: ${match[1]}`
-        }];
+        });
       }
-
-      return [];
     },
     examples: [
       'Convert to upper case',
@@ -57,20 +56,24 @@ const parser = new ConfigurationParser<IString>([
 
 test('Fully modifies hello world', () => {
   const input = { value: 'Hello world' };
-  const errors = parser.parse(input, 'Replace "o" with "ó". Convert to upper case.');
+  const errors = parser.configure('Replace "o" with "ó". Convert to upper case.', input);
 
-  expect(errors).toHaveLength(0);
+  expect(errors).toBeNull();
   expect(input.value).toEqual('HELLÓ WÓRLD');
 });
 
 
 test('Partly modifies hello world', () => {
   const input = { value: 'Hello world' };
-  const errors = parser.parse(input, 'Convert to upper case. Replace "o" with "ó".');
+  const errors = parser.configure('Convert to upper case. Replace "o" with "ó".', input);
 
-  expect(errors).toHaveLength(0);
+  expect(errors).toBeNull();
   expect(input.value).toEqual('HELLO WORLD');
 });
+
+// TODO: test parsing without configuring an object.
+
+// TODO: test specific error positions.
 
 test('Examples match expectations', () => {
   expect(parser.examples).toHaveLength(4);

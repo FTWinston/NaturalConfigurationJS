@@ -25,13 +25,33 @@ export class ConfigurationParser<TConfiguring> {
     }
   }
 
-  public parse(configuring: TConfiguring, configurationText: string): IParserError[] {
+  public parse(configurationText: string): IParserError[] {
+    const [, errors] = this.loadConfiguration(configurationText);
+    return errors;
+  }
+
+  public configure(configurationText: string, configuring: TConfiguring): IParserError[] | null {
+    const [actions, errors] = this.loadConfiguration(configurationText);
+
+    if (errors.length > 0) {
+      return errors;
+    }
+
+    for (const action of actions) {
+      action(configuring);
+    }
+
+    return null;
+  }
+
+  private loadConfiguration(configurationText: string): [Array<(modify: TConfiguring) => void>, IParserError[]] {
+    const actions: Array<(configuring: TConfiguring) => void> = [];
     const errors: IParserError[] = [];
 
     const sentences = this.splitSentences(configurationText);
 
     for (const sentence of sentences) {
-      const sentenceErrors = this.parseSentence(configuring, sentence.text);
+      const sentenceErrors = this.parseSentence(actions, sentence.text);
       if (sentenceErrors === null) {
         continue;
       }
@@ -46,7 +66,7 @@ export class ConfigurationParser<TConfiguring> {
       }
     }
 
-    return errors;
+    return [actions, errors];
   }
 
   private splitSentences(configurationText: string): ISentenceData[] {
@@ -86,10 +106,12 @@ export class ConfigurationParser<TConfiguring> {
     return sentences;
   }
 
-  private parseSentence(configuring: TConfiguring, sentence: string): IParserError[] {
+  private parseSentence(actions: Array<(configuring: TConfiguring) => void>, sentence: string): IParserError[] {
     for (const parser of this.sentenceParsers) {
-      const errors = parser.parse(configuring, sentence);
-      if (errors !== null) {
+      const errors: IParserError[] = [];
+      const didMatch = parser.parse(sentence, actions, errors);
+
+      if (didMatch) {
         return errors;
       }
     }
