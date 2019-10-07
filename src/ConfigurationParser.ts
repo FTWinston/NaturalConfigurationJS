@@ -25,13 +25,13 @@ export class ConfigurationParser<TConfiguring> {
     }
   }
 
-  public parse(configurationText: string): IParserError[] {
-    const [, errors] = this.loadConfiguration(configurationText);
+  public validate(configurationText: string): IParserError[] {
+    const [, errors] = this.parseConfiguration(configurationText);
     return errors;
   }
 
   public configure(configurationText: string, configuring: TConfiguring): IParserError[] | null {
-    const [actions, errors] = this.loadConfiguration(configurationText);
+    const [actions, errors] = this.parseConfiguration(configurationText);
 
     if (errors.length > 0) {
       return errors;
@@ -44,7 +44,7 @@ export class ConfigurationParser<TConfiguring> {
     return null;
   }
 
-  private loadConfiguration(configurationText: string): [Array<(modify: TConfiguring) => void>, IParserError[]] {
+  private parseConfiguration(configurationText: string): [Array<(modify: TConfiguring) => void>, IParserError[]] {
     const actions: Array<(configuring: TConfiguring) => void> = [];
     const errors: IParserError[] = [];
 
