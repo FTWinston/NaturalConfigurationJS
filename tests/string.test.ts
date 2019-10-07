@@ -58,7 +58,7 @@ test('Fully modifies hello world', () => {
   const input = { value: 'Hello world' };
   const errors = parser.configure('Replace "o" with "ó". Convert to upper case.', input);
 
-  expect(errors).toBeNull();
+  expect(errors).toHaveLength(0);
   expect(input.value).toEqual('HELLÓ WÓRLD');
 });
 
@@ -67,7 +67,7 @@ test('Partly modifies hello world', () => {
   const input = { value: 'Hello world' };
   const errors = parser.configure('Convert to upper case. Replace "o" with "ó".', input);
 
-  expect(errors).toBeNull();
+  expect(errors).toHaveLength(0);
   expect(input.value).toEqual('HELLO WORLD');
 });
 
