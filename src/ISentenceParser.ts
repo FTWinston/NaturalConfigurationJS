@@ -18,13 +18,11 @@ export interface IListParserBase<TConfiguring> {
   expressionPrefix: string;
   elementExpression?: string;
   expressionSuffix?: string;
-  parseListMatch: (
+  parseMatch: (
     match: RegExpExecArray,
-    values: string[],
     action: (action: (modify: TConfiguring) => void) => void,
     error: (error: IParserError) => void,
-  ) => IParserError[];
-  listGroupOffset?: number;
+  ) => void;
 }
 
 export interface IListParser<TConfiguring> extends IListParserBase<TConfiguring> {

@@ -51,6 +51,21 @@ const parser = new ConfigurationParser<IString>([
       'Convert to upper case',
       'Conver to lower case'
     ]
+  },
+  {
+    type: 'list',
+    expressionPrefix: 'Remove these words: ',
+    parseMatch: (match, action, error) => {
+      action(modify => {
+        for (const word of match.slice(1)) {
+          modify.value = modify.value.replace(word, '');
+        }
+      });
+    },
+    examples: [
+      'Remove these words: fish, chips',
+      'Remove these chips: red, white and blue'
+    ]
   }
 ]);
 
@@ -68,6 +83,14 @@ test('Partly modifies hello world', () => {
 
   expect(errors).toHaveLength(0);
   expect(input.value).toEqual('HELLO WORLD');
+});
+
+test('Removes words from list', () => {
+  const input = { value: 'red orange yellow green blue black white brown purple' };
+  const errors = parser.configure('Remove these words: red, green and blue.', input);
+  
+  expect(errors).toHaveLength(0);
+  expect(input.value).toEqual(' orange yellow   black white brown purple');
 });
 
 test('Validates successfully', () => {
@@ -129,12 +152,14 @@ test('Identifies multiple errors', () => {
 });
 
 test('Examples match expectations', () => {
-  expect(parser.examples).toHaveLength(4);
+  expect(parser.examples).toHaveLength(6);
 
   expect(parser.examples).toEqual([
     'Replace "x" with "y"',
     'Replace "something" with ""',
     'Convert to upper case',
-    'Conver to lower case'
+    'Conver to lower case',
+    'Remove these words: fish, chips',
+    'Remove these chips: red, white and blue'
   ]);
 });
