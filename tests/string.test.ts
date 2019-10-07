@@ -49,7 +49,7 @@ const parser = new ConfigurationParser<IString>([
     },
     examples: [
       'Convert to upper case',
-      'Conver to lower case'
+      'Convert to lower case'
     ]
   },
   {
@@ -64,7 +64,7 @@ const parser = new ConfigurationParser<IString>([
     },
     examples: [
       'Remove these words: fish, chips',
-      'Remove these chips: red, white and blue'
+      'Remove these words: red, white and blue'
     ]
   }
 ]);
@@ -158,8 +158,8 @@ test('Examples match expectations', () => {
     'Replace "x" with "y"',
     'Replace "something" with ""',
     'Convert to upper case',
-    'Conver to lower case',
+    'Convert to lower case',
     'Remove these words: fish, chips',
-    'Remove these chips: red, white and blue'
+    'Remove these words: red, white and blue'
   ]);
 });
