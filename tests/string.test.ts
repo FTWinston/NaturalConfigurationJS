@@ -62,7 +62,6 @@ test('Fully modifies hello world', () => {
   expect(input.value).toEqual('HELLÓ WÓRLD');
 });
 
-
 test('Partly modifies hello world', () => {
   const input = { value: 'Hello world' };
   const errors = parser.configure('Convert to upper case. Replace "o" with "ó".', input);
@@ -71,9 +70,63 @@ test('Partly modifies hello world', () => {
   expect(input.value).toEqual('HELLO WORLD');
 });
 
-// TODO: test parsing without configuring an object.
+test('Validates successfully', () => {
+  const errors = parser.validate('Replace "o" with "ó". Convert to upper case.');
+  
+  expect(errors).toHaveLength(0);
+});
 
-// TODO: test specific error positions.
+test('Reports error for unrecognised sentence', () => {
+  const errors = parser.validate('This sentence matches no parser.');
+    
+  expect(errors).toHaveLength(1);
+
+  const error = errors[0];
+
+  expect(error.startIndex).toBe(0);
+  expect(error.length).toBe(31);
+  expect(error.message).toBe("Sentence doesn't match any known rules.");
+});
+
+test('Identifies error in single sentence', () => {
+  const errors = parser.validate('Convert to nonsense case.');
+      
+  expect(errors).toHaveLength(1);
+    
+  const error = errors[0];
+
+  expect(error.startIndex).toBe(11);
+  expect(error.length).toBe(8);
+  expect(error.message).toBe("Unexpected case value: nonsense");
+});
+
+test('Identifies error in second sentence', () => {
+  const errors = parser.validate('Replace "o" with "ó". Convert to nonsense case.');
+      
+  expect(errors).toHaveLength(1);
+    
+  const error = errors[0];
+
+  expect(error.startIndex).toBe(33);
+  expect(error.length).toBe(8);
+  expect(error.message).toBe("Unexpected case value: nonsense");
+});
+
+test('Identifies multiple errors', () => {
+  const errors = parser.validate('Replace "" with "ó". Convert to nonsense case.');
+      
+  expect(errors).toHaveLength(2);
+    
+  let error = errors[0];
+  expect(error.startIndex).toBe(8);
+  expect(error.length).toBe(2);
+  expect(error.message).toBe("Match text cannot be empty.");
+
+  error = errors[1];
+  expect(error.startIndex).toBe(32);
+  expect(error.length).toBe(8);
+  expect(error.message).toBe("Unexpected case value: nonsense");
+});
 
 test('Examples match expectations', () => {
   expect(parser.examples).toHaveLength(4);

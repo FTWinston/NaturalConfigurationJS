@@ -92,7 +92,7 @@ export class ConfigurationParser<TConfiguring> {
         continue;
       }
 
-      startPos += text.length - origLength;
+      startPos += origLength - text.length;
 
       text = text.trimEnd();
 
