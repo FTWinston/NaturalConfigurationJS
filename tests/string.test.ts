@@ -7,7 +7,7 @@ interface IString {
 const parser = new ConfigurationParser<IString>([
   {
     type: 'standard',
-    expressionText: 'Replace \"(.*)\" with \"(.*)\"',
+    expressionText: 'Replace "(.*)" with "(.*)"',
     parseMatch: (match, action, error) => {
       if (match[1].length === 0) {
         error({
