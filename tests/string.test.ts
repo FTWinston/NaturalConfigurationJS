@@ -135,7 +135,7 @@ test('Identifies error in second sentence', () => {
   expect(error.message).toBe("Unexpected case value: nonsense");
 });
 
-test('Identifies multiple errors', () => {
+test('Identifies errors in two sentences', () => {
   const errors = parser.validate('Replace "" with "ó". Convert to nonsense case.');
       
   expect(errors).toHaveLength(2);
@@ -147,6 +147,22 @@ test('Identifies multiple errors', () => {
 
   error = errors[1];
   expect(error.startIndex).toBe(32);
+  expect(error.length).toBe(8);
+  expect(error.message).toBe("Unexpected case value: nonsense");
+});
+
+test('Identifies errors in three sentences', () => {
+  const errors = parser.validate('Convert to invalid case. Convert to upper case. Convert to nonsense case.');
+      
+  expect(errors).toHaveLength(2);
+    
+  let error = errors[0];
+  expect(error.startIndex).toBe(11);
+  expect(error.length).toBe(7);
+  expect(error.message).toBe("Unexpected case value: invalid");
+
+  error = errors[1];
+  expect(error.startIndex).toBe(59);
   expect(error.length).toBe(8);
   expect(error.message).toBe("Unexpected case value: nonsense");
 });
