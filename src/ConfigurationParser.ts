@@ -9,8 +9,7 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
   private sentenceParsers: Array<SentenceParser<TConfiguring, TOptions>>;
 
   constructor(
-    public readonly parsers: Array<ISentenceParser<TConfiguring, TOptions> | IListParser<TConfiguring, TOptions>>,
-    public options?: TOptions,
+    public readonly parsers: Array<ISentenceParser<TConfiguring, TOptions> | IListParser<TConfiguring, TOptions>>
   ) {
     this.sentenceParsers = parsers.map(parser => {
       if (parser.type === 'standard') {
@@ -28,13 +27,13 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
     }
   }
 
-  public validate(configurationText: string) {
-    const [, errors] = this.parseConfiguration(configurationText);
+  public validate(configurationText: string, options?: TOptions) {
+    const [, errors] = this.parseConfiguration(configurationText, options);
     return errors;
   }
 
-  public configure(configurationText: string, configuring: TConfiguring) {
-    const [actions, errors] = this.parseConfiguration(configurationText);
+  public configure(configurationText: string, configuring: TConfiguring, options?: TOptions) {
+    const [actions, errors] = this.parseConfiguration(configurationText, options);
 
     if (errors.length > 0) {
       return errors;
@@ -47,14 +46,14 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
     return errors;
   }
 
-  private parseConfiguration(configurationText: string): [Array<(modify: TConfiguring) => void>, IParserError[]] {
+  private parseConfiguration(configurationText: string, options?: TOptions): [Array<(modify: TConfiguring) => void>, IParserError[]] {
     const actions: Array<(configuring: TConfiguring) => void> = [];
     const errors: IParserError[] = [];
 
     const sentences = this.splitSentences(configurationText);
 
     for (const sentence of sentences) {
-      const sentenceErrors = this.parseSentence(actions, sentence.text);
+      const sentenceErrors = this.parseSentence(actions, sentence.text, options);
       if (sentenceErrors === null) {
         continue;
       }
@@ -109,10 +108,10 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
     return sentences;
   }
 
-  private parseSentence(actions: Array<(configuring: TConfiguring) => void>, sentence: string): IParserError[] {
+  private parseSentence(actions: Array<(configuring: TConfiguring) => void>, sentence: string, options?: TOptions): IParserError[] {
     for (const parser of this.sentenceParsers) {
       const errors: IParserError[] = [];
-      const didMatch = parser.parse(sentence, actions, errors, this.options);
+      const didMatch = parser.parse(sentence, actions, errors, options);
 
       if (didMatch) {
         return errors;
