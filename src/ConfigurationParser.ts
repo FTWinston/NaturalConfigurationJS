@@ -4,16 +4,19 @@ import { IListParser, ISentenceParser } from './ISentenceParser';
 import { ListParser } from './ListParser';
 import { SentenceParser } from './SentenceParser';
 
-export class ConfigurationParser<TConfiguring> {
+export class ConfigurationParser<TConfiguring, TOptions = {}> {
   public readonly examples: string[];
-  private sentenceParsers: Array<SentenceParser<TConfiguring>>;
+  private sentenceParsers: Array<SentenceParser<TConfiguring, TOptions>>;
 
-  constructor(public readonly parsers: Array<ISentenceParser<TConfiguring> | IListParser<TConfiguring>>) {
+  constructor(
+    public readonly parsers: Array<ISentenceParser<TConfiguring, TOptions> | IListParser<TConfiguring, TOptions>>,
+    public options?: TOptions,
+  ) {
     this.sentenceParsers = parsers.map(parser => {
       if (parser.type === 'standard') {
-        return new SentenceParser(parser);
+        return new SentenceParser<TConfiguring, TOptions>(parser);
       } else if (parser.type === 'list') {
-        return new ListParser(parser);
+        return new ListParser<TConfiguring, TOptions>(parser);
       } else {
         throw new Error(`Unexpected parser type: ${(parser as any).type}`);
       }
@@ -109,7 +112,7 @@ export class ConfigurationParser<TConfiguring> {
   private parseSentence(actions: Array<(configuring: TConfiguring) => void>, sentence: string): IParserError[] {
     for (const parser of this.sentenceParsers) {
       const errors: IParserError[] = [];
-      const didMatch = parser.parse(sentence, actions, errors);
+      const didMatch = parser.parse(sentence, actions, errors, this.options);
 
       if (didMatch) {
         return errors;
