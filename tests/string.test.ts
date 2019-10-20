@@ -123,6 +123,18 @@ test('Identifies error in single sentence', () => {
   expect(error.message).toBe("Unexpected case value: nonsense");
 });
 
+test('Reports error for unfinished sentence', () => {
+  const errors = parser.validate('Convert to upper case. Convert to lower case');
+      
+  expect(errors).toHaveLength(1);
+    
+  const error = errors[0];
+
+  expect(error.startIndex).toBe(43);
+  expect(error.length).toBe(1);
+  expect(error.message).toBe("The last sentence is unfinished.");
+});
+
 test('Identifies error in second sentence', () => {
   const errors = parser.validate('Replace "o" with "ó". Convert to nonsense case.');
       

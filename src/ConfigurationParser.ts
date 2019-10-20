@@ -9,7 +9,7 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
   private sentenceParsers: Array<SentenceParser<TConfiguring, TOptions>>;
 
   constructor(
-    public readonly parsers: Array<ISentenceParser<TConfiguring, TOptions> | IListParser<TConfiguring, TOptions>>
+    public readonly parsers: Array<ISentenceParser<TConfiguring, TOptions> | IListParser<TConfiguring, TOptions>>,
   ) {
     this.sentenceParsers = parsers.map(parser => {
       if (parser.type === 'standard') {
@@ -46,11 +46,14 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
     return errors;
   }
 
-  private parseConfiguration(configurationText: string, options?: TOptions): [Array<(modify: TConfiguring) => void>, IParserError[]] {
+  private parseConfiguration(
+    configurationText: string,
+    options?: TOptions,
+  ): [Array<(modify: TConfiguring) => void>, IParserError[]] {
     const actions: Array<(configuring: TConfiguring) => void> = [];
     const errors: IParserError[] = [];
 
-    const sentences = this.splitSentences(configurationText);
+    const [sentences, hasUnfinishedSentence] = this.splitSentences(configurationText);
 
     for (const sentence of sentences) {
       const sentenceErrors = this.parseSentence(actions, sentence.text, options);
@@ -68,10 +71,18 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
       }
     }
 
+    if (hasUnfinishedSentence) {
+      errors.push({
+        length: 1,
+        startIndex: configurationText.length - 1,
+        message: 'The last sentence is unfinished.',
+      });
+    }
+
     return [actions, errors];
   }
 
-  private splitSentences(configurationText: string): ISentenceData[] {
+  private splitSentences(configurationText: string): [ISentenceData[], boolean] {
     let startPos = -1;
     let endPos = -1;
 
@@ -82,7 +93,7 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
       endPos = configurationText.indexOf('.', startPos);
 
       if (endPos === -1) {
-        break;
+        return [sentences, startPos < configurationText.length];
       }
 
       let text = configurationText.substring(startPos, endPos);
@@ -104,11 +115,13 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
         text,
       });
     }
-
-    return sentences;
   }
 
-  private parseSentence(actions: Array<(configuring: TConfiguring) => void>, sentence: string, options?: TOptions): IParserError[] {
+  private parseSentence(
+    actions: Array<(configuring: TConfiguring) => void>,
+    sentence: string,
+    options?: TOptions,
+  ): IParserError[] {
     for (const parser of this.sentenceParsers) {
       const errors: IParserError[] = [];
       const didMatch = parser.parse(sentence, actions, errors, options);
