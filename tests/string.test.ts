@@ -135,6 +135,12 @@ test('Reports error for unfinished sentence', () => {
   expect(error.message).toBe("The last sentence is unfinished.");
 });
 
+test('Doesn\'t report error for trailing whitespace', () => {
+  const errors = parser.validate('Convert to upper case. ');
+  
+  expect(errors).toHaveLength(0);
+});
+
 test('Identifies error in second sentence', () => {
   const errors = parser.validate('Replace "o" with "ó". Convert to nonsense case.');
       

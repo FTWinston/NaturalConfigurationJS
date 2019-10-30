@@ -86,6 +86,8 @@ export class ConfigurationParser<TConfiguring, TOptions = {}> {
     let startPos = -1;
     let endPos = -1;
 
+    configurationText = configurationText.trimEnd();
+
     const sentences: ISentenceData[] = [];
 
     while (true) {
